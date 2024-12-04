@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\core\Router;
 use app\models\User;
 use app\core\Session;
+use app\utils\AuthValidation;
 use app\utils\Helpers;
 
 class AuthController extends Controller
@@ -21,16 +22,11 @@ class AuthController extends Controller
     public function login(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            if ($error = AuthValidation::validateLogin(Helpers::getPostData(['login', 'password', 'password_confirm']))) {
+                $this->view->render('login', ['error' => $error]);
+            }
             extract(Helpers::getPostData(['login', 'password']));
-
-            $user = $this->model->findUserByLogin($login);
-
-            if (!$user) {
-                $this->view->render('login', ['error' => 'User with such login does not exist']);
-            }
-            if (!password_verify($password, $user['password'])) {
-                $this->view->render('login', ['error' => 'Incorrect password']);
-            }
 
             self::proceed(Session::generateToken(), $login);
         }
@@ -45,15 +41,11 @@ class AuthController extends Controller
     public function register(): void
     {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            if ($error = AuthValidation::validateRegister(Helpers::getPostData(['login', 'password', 'password_confirm']))) {
+                $this->view->render('register', ['error' => $error]);
+            }
             extract(Helpers::getPostData(['login', 'password', 'password_confirm']));
-
-            if ($this->model->findUserByLogin($login)) {
-                $this->view->render('register', ['error' => 'User with such login already exist']);
-            }
-
-            if ($password != $password_confirm) {
-                $this->view->render('register', ['error' => 'Passwords do not match']);
-            }
 
             $data = [
                 'login' => $login,
