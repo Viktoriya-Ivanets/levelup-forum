@@ -1,0 +1,15 @@
+{
+    "name": "ivanetsvv/forum",
+    "authors": [
+        {
+            "name": "Viktoriia Danylenko",
+            "email": "danylenko.viktoriia5@gmail.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "app\\": "app/"
+        }
+    }
+}
