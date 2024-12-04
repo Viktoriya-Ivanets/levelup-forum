@@ -13,11 +13,21 @@ class View
         }
     }
 
+    /**
+     * Renders a view template.
+     *
+     * Extracts provided data into variables and includes the specified template.
+     * Terminates script execution after rendering.
+     *
+     * @param string $page The name of the page or view to render.
+     * @param array|null $data An associative array of data to pass to the view (optional).
+     */
     public function render(string $page, ?array $data = null): void
     {
         if ($data) {
             extract($data);
         }
         include_once TEMPLATES . $this->template . '.php';
+        exit();
     }
 }
