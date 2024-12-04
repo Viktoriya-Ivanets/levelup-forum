@@ -3,20 +3,15 @@
 namespace app\controllers;
 
 use app\core\Router;
-use app\core\View;
 use app\models\User;
 use app\core\Session;
 use app\utils\Helpers;
 
-class AuthController
+class AuthController extends Controller
 {
-    protected View $view;
-    protected User $model;
-
     public function __construct()
     {
-        $this->view = new View('auth');
-        $this->model = new User();
+        parent::__construct('auth', new User());
     }
 
     /**

@@ -2,14 +2,11 @@
 
 namespace app\controllers;
 
-use app\core\View;
-
-class CategoryController
+class CategoryController extends Controller
 {
-    protected View $view;
     public function __construct()
     {
-        $this->view = new View();
+        parent::__construct();
     }
 
     /**
