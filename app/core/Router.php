@@ -4,8 +4,8 @@ namespace app\core;
 
 class Router
 {
-    private static $routes = [];
-    private $params = [];
+    protected static $routes = [];
+    protected $params = [];
 
     /**
      * Adds a route to the routing table
@@ -13,7 +13,7 @@ class Router
      * @param string $route The URL pattern for the route
      * @param array $params Parameters associated with the route, such as controller and action
      */
-    public static function add($route, $params = [])
+    public static function add(string $route, array $params = []): void
     {
         $route = '#^' . $route . '$#';
         self::$routes[$route] = $params;
@@ -25,9 +25,8 @@ class Router
      * @param string $url The URL to match against the routes
      * @return bool True if a match is found, false otherwise
      */
-    private function match($url)
+    private function match($url): bool
     {
-        error_log(print_r(self::$routes, true));
         foreach (self::$routes as $route => $params) {
             if (preg_match($route, $url, $matches)) {
                 $this->params = $params;
@@ -45,16 +44,21 @@ class Router
      *
      * @param string $url The URL to dispatch
      */
-    public function dispatch($url)
+    public function dispatch($url): void
     {
-        error_log($url);
+        Session::start();
+        $publicRoutes = ['login', 'register'];
+
         $url = trim($url, '/');
+        if (!Session::get('token') && !in_array($url, $publicRoutes)) {
+            if ($url !== 'login') {
+                self::redirect('login');
+            }
+        }
 
         if ($this->match($url)) {
             $controller = '\\app\\controllers\\' . $this->params['controller'] . 'Controller';
-            error_log($controller);
             if (class_exists($controller)) {
-                error_log("Found");
                 $controllerObject = new $controller();
                 $action = $this->params['action'];
 
