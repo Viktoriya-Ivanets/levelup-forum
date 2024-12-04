@@ -3,7 +3,7 @@
         <h1 class="card-header text-center"><b>Forum</b></h1>
         <div class="card-body">
             <p class="login-box-msg">Register a new membership</p>
-            <form action="#" method="post">
+            <form action="<?= \app\core\Router::url('register') ?>" method="post">
                 <div class="input-group mb-3">
                     <input type="text" name="login" class="form-control" placeholder="Enter new login">
                     <div class="input-group-append">
@@ -28,10 +28,13 @@
                         </div>
                     </div>
                 </div>
+                <?php if (!empty($error)): ?>
+                    <div class="alert alert-danger"><?= $error ?></div>
+                <?php endif; ?>
                 <div class="row">
                     <div class="col-12">
                         <button type="submit" class="btn btn-primary btn-block">Register</button>
-                        <a href="#">
+                        <a href="<?= \app\core\Router::url('login') ?>">
                             <div class="btn btn-primary w-100 mt-2">Login</div>
                         </a>
                     </div>

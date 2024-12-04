@@ -5,9 +5,9 @@
             <span class="brand-text font-weight-light">Forum</span>
         </a>
         <div class="collapse navbar-collapse order-3 d-flex justify-content-end" id="navbarCollapse">
-            <button class="btn btn-secondary d-flex align-items-center ms-auto"> Logout
+            <a href="<?= \app\core\Router::url('logout') ?>" class="btn btn-secondary d-flex align-items-center ms-auto"> <?= \app\core\Session::get('user') ?>
                 <i class="fa-solid fa-right-from-bracket ml-2"></i>
-            </button>
+            </a>
         </div>
     </div>
 </nav>

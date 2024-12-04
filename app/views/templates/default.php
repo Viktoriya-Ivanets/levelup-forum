@@ -26,7 +26,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- /.navbar -->
 
         <!-- Content Wrapper. Contains page content -->
-        <?php include_once(VIEWS . 'pages/topic.php') ?>
+        <?php include_once(PAGES_VIEWS . $page . '.php') ?>
         <!-- Footer -->
         <?php include_once(COMMON_VIEWS . 'footer.php') ?>
     </div>

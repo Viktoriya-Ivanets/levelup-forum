@@ -18,7 +18,7 @@
 
 <body class="hold-transition login-page">
 
-    <?php include_once(VIEWS . 'auth/login.php') ?>
+    <?php include_once(AUTH_VIEWS . $page . '.php') ?>
 
     <!-- jQuery -->
     <script src="<?= ADMIN_LTE_PLUGINS_JS . 'jquery.min.js' ?>"></script>
