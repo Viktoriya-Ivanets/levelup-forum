@@ -2,7 +2,9 @@
 
 namespace app\controllers;
 
+use app\core\Session;
 use app\core\View;
+use app\models\User;
 
 abstract class Controller
 {
@@ -19,5 +21,15 @@ abstract class Controller
     {
         $this->view = new View($template);
         $this->model = $model ?? null;
+    }
+
+    /**
+     * Fetches the current user from the session
+     * @return array|null
+     */
+    protected function getCurrentUser(): ?array
+    {
+        $userModel = new User();
+        return $userModel->findUserByLogin(Session::get('user'));
     }
 }
