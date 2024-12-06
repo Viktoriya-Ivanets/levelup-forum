@@ -1,6 +1,6 @@
 <nav class="main-header navbar navbar-expand-md navbar-light navbar-white">
     <div class="container">
-        <a href="#" class="navbar-brand">
+        <a href="<?= \app\core\Router::url('categories') ?>" class="navbar-brand">
             <img src="<?= PUBLIC_IMAGES . 'ForumLogo.png' ?>" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
             <span class="brand-text font-weight-light">Forum</span>
         </a>

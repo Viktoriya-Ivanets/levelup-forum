@@ -31,7 +31,7 @@
                                     <i class="fa-solid fa-list"></i>
                                 </div>
                                 <div class="small-box-footer p-2 d-flex justify-content-center">
-                                    <a href="#" class="text-white">See topics <i class="fas fa-arrow-circle-right ml-2"></i></a>
+                                    <a href="<?= app\core\Router::url('categories/' . $category['id'] . '/topics') ?>" class="text-white">See topics <i class="fas fa-arrow-circle-right ml-2"></i></a>
                                     <?php if ($category['user_id'] === $user['id']): ?>
                                         <a href="<?= app\core\Router::url('categories/edit/' . $category['id']) ?>" class="text-white ml-3">Edit <i class="fas fa-pencil ml-2"></i></a>
                                         <a href="<?= app\core\Router::url('categories/delete/' . $category['id']) ?>" class="text-white ml-3">Delete <i class="fas fa-trash ml-2"></i></a>
