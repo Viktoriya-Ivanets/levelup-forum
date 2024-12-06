@@ -20,4 +20,15 @@ class Helpers
 
         return $postData;
     }
+
+    /**TODO Move to View and render error template
+     * Renders an error message and stops execution
+     * @param string $message
+     * @return never
+     */
+    public static function renderError(string $message): never
+    {
+        echo $message;
+        exit();
+    }
 }
