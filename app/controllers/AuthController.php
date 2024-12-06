@@ -82,6 +82,6 @@ class AuthController extends Controller
     {
         Session::set('token', $token);
         Session::set('user', $login);
-        Router::redirect('');
+        Router::redirect('categories');
     }
 }
