@@ -16,7 +16,7 @@ Router::add('categories/update', ['controller' => 'Category', 'action' => 'updat
 Router::add('categories/delete/(\d+)', ['controller' => 'Category', 'action' => 'delete']);
 Router::add('categories/(\d+)/topics', ['controller' => 'Topic', 'action' => 'index']);
 Router::add('categories/(\d+)/topics/create', ['controller' => 'Topic', 'action' => 'create']);
-Router::add('topics/store', ['controller' => 'Topic', 'action' => 'store']);
-Router::add('topics/edit/(\d+)', ['controller' => 'Topic', 'action' => 'edit']);
-Router::add('topics/update', ['controller' => 'Topic', 'action' => 'update']);
-Router::add('topics/delete/(\d+)', ['controller' => 'Topic', 'action' => 'delete']);
+Router::add('categories/(\d+)/topics/store', ['controller' => 'Topic', 'action' => 'store']);
+Router::add('categories/(\d+)/topics/edit/(\d+)', ['controller' => 'Topic', 'action' => 'edit']);
+Router::add('categories/(\d+)/topics/update', ['controller' => 'Topic', 'action' => 'update']);
+Router::add('categories/(\d+)/topics/delete/(\d+)', ['controller' => 'Topic', 'action' => 'delete']);
