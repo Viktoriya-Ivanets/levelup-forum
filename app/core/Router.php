@@ -30,9 +30,11 @@ class Router
         foreach (self::$routes as $route => $params) {
             if (preg_match($route, $url, $matches)) {
                 $this->params = $params;
-                if (!empty($matches[1])) {
-                    $this->params['id'] = $matches[1];
+
+                if (preg_match_all('(\d+)', $url, $numberMatches)) {
+                    $this->params['ids'] = array_map('intval', $numberMatches[0]);
                 }
+
                 return true;
             }
         }
@@ -51,28 +53,30 @@ class Router
 
         $url = trim($url, '/');
         if (!Session::get('token') && !in_array($url, $publicRoutes)) {
-            if ($url !== 'login') {
-                self::redirect('login');
-            }
+            self::redirect('login');
+            return;
         }
 
         if ($this->match($url)) {
-            $controller = '\\app\\controllers\\' . $this->params['controller'] . 'Controller';
-            if (class_exists($controller)) {
-                $controllerObject = new $controller();
-                $action = $this->params['action'];
+            $controllerClass = '\\app\\controllers\\' . ucfirst($this->params['controller']) . 'Controller';
 
-                if (method_exists($controllerObject, $action)) {
-                    $controllerObject->$action($this->params);
+            if (class_exists($controllerClass)) {
+                $controllerObject = new $controllerClass();
+
+                $actionMethod = $this->params['action'];
+                if (method_exists($controllerObject, $actionMethod)) {
+                    $controllerObject->$actionMethod($this->params);
                 } else {
-                    echo "Method $action not found!";
+                    http_response_code(404);
+                    echo "Error: Method '$actionMethod' not found in controller '$controllerClass'.";
                 }
             } else {
-                echo "Controller $controller not found!";
+                http_response_code(404);
+                echo "Error: Controller '$controllerClass' not found.";
             }
         } else {
             http_response_code(404);
-            echo "Page not found!";
+            echo "Error: Page not found!";
         }
     }
 
