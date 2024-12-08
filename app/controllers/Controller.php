@@ -24,12 +24,26 @@ abstract class Controller
     }
 
     /**
-     * Fetches the current user from the session
-     * @return array|null
+     * Fetches the current user from the session and returns it's id
+     * @return int|null
      */
-    protected function getCurrentUser(): ?array
+    protected function getCurrentUserId(): ?int
     {
         $userModel = new User();
-        return $userModel->findUserByLogin(Session::get('user'));
+        $user = $userModel->findUserByLogin(Session::get('user'));
+        return $user['id'];
+    }
+
+    /**
+     * Checks whether logged user is author of entity (category, topic, message)
+     * @param int $id
+     * @return bool
+     */
+    protected function isAuthor(int $id): bool
+    {
+        if ($this->getCurrentUserId() === $id) {
+            return true;
+        }
+        return false;
     }
 }

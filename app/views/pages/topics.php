@@ -16,7 +16,7 @@
         <div class="container">
             <div class="row mb-3">
                 <div class="col-2">
-                    <a href="<?= \app\core\Router::url('categories/' . $category['id'] . '/topics/create') ?>" class="btn btn-primary">Add topic</a>
+                    <a href="<?= \app\core\Router::url('categories/' . $categoryId . '/topics/create') ?>" class="btn btn-primary">Add topic</a>
                 </div>
             </div>
             <div class="row">
@@ -37,10 +37,10 @@
                                         </div>
                                     </div>
                                     <div class="card-footer bg-primary p-2 d-flex justify-content-center">
-                                        <a href="<?= app\core\Router::url('categories/' . $category['id'] . '/topics/' . $topic['id']) ?>" class="text-white">See full conversation <i class="fas fa-arrow-circle-right ml-2"></i></a>
-                                        <?php if ($topic['user_id'] === $user['id']): ?>
-                                            <a href="<?= app\core\Router::url('topics/edit/' . $topic['id']) ?>" class="text-white ml-3">Edit <i class="fas fa-pencil ml-2"></i></a>
-                                            <a href="<?= app\core\Router::url('topics/delete/' . $topic['id']) ?>" class="text-white ml-3">Delete <i class="fas fa-trash ml-2"></i></a>
+                                        <a href="<?= app\core\Router::url('categories/' . $categoryId . '/topics/' . $topic['id']) ?>" class="text-white">See full conversation <i class="fas fa-arrow-circle-right ml-2"></i></a>
+                                        <?php if ($topic['is_author']): ?>
+                                            <a href="<?= app\core\Router::url('categories/' . $categoryId . '/topics/edit/' . $topic['id']) ?>" class="text-white ml-3">Edit <i class="fas fa-pencil ml-2"></i></a>
+                                            <a href="<?= app\core\Router::url('categories/' . $categoryId . '/topics/delete/' . $topic['id']) ?>" class="text-white ml-3">Delete <i class="fas fa-trash ml-2"></i></a>
                                         <?php endif; ?>
                                     </div>
                                 </div>

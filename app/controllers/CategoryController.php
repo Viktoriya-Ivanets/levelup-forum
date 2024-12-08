@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\core\Router;
+use app\core\Session;
 use app\models\Category;
 use app\utils\CategoryValidation;
 use app\utils\Helpers;
@@ -22,9 +23,8 @@ class CategoryController extends Controller
      */
     public function index(): void
     {
-        $categories = $this->model->getAll();
-        $user = $this->getCurrentUser();
-        $this->view->render('categories', compact('categories', 'user'));
+        $categories = $this->enrichCategoriesWithUser($this->model->getAll());
+        $this->view->render('categories', compact('categories'));
     }
 
     /**
@@ -33,7 +33,13 @@ class CategoryController extends Controller
      */
     public function create(): void
     {
-        $this->view->render('category_add');
+        $errors = Session::get('errors') ?? [];
+        $old = Session::get('old') ?? [];
+        if (!empty($errors)) {
+            Session::remove(['errors', 'old']);
+        }
+
+        $this->view->render('category_add', compact('errors', 'old'));
     }
 
     /**
@@ -42,10 +48,13 @@ class CategoryController extends Controller
      */
     public function store(): void
     {
-        $postData = $this->validation->getValidatedData(['title', 'description'], 'category_add');
+        $postData = $this->validation->getValidatedData(['title', 'description']);
 
-        $user = $this->getCurrentUser();
-        $postData['user_id'] = $user['id'];
+        if (!$postData) {
+            Router::redirect('categories/create');
+        }
+
+        $postData['user_id'] = $this->getCurrentUserId();
 
         if (!$this->model->create($postData)) {
             Helpers::renderError('Category not created');
@@ -61,8 +70,12 @@ class CategoryController extends Controller
      */
     public function edit(array $params): void
     {
-        $category = $this->model->findCategoryOrFail($params['id']);
-        $this->view->render('category_edit', compact('category'));
+        $errors = Session::get('errors') ?? [];
+        $old = Session::get('old') ?? $this->model->findCategoryOrFail(end($params['ids']));
+        if (!empty($errors)) {
+            Session::remove(['errors', 'old']);
+        }
+        $this->view->render('category_edit', compact('errors', 'old'));
     }
 
     /**
@@ -71,8 +84,12 @@ class CategoryController extends Controller
      */
     public function update(): void
     {
-        $postData = $this->validation->getValidatedData(['id', 'title', 'description'], 'category_edit');
+        $postData = $this->validation->getValidatedData(['id', 'title', 'description']);
 
+        if (!$postData) {
+            $categoryId = Session::get('old')['id'];
+            Router::redirect('categories/edit/' . $categoryId);
+        }
         $this->model->findCategoryOrFail($postData['id']);
 
         if (!$this->model->update($postData['id'], $postData)) {
@@ -89,12 +106,26 @@ class CategoryController extends Controller
      */
     public function delete(array $params): never
     {
-        $category = $this->model->findCategoryOrFail($params['id']);
+        $category = $this->model->findCategoryOrFail(end($params['ids']));
 
         if (!$this->model->delete($category['id'])) {
             Helpers::renderError('Category not deleted');
         }
 
         Router::redirect('categories');
+    }
+
+    /**
+     * Adds is_author field to category for correct view displaying
+     * @param array $categories
+     * @return array
+     */
+    private function enrichCategoriesWithUser(array $categories): array
+    {
+        foreach ($categories as &$category) {
+            $category['is_author'] = $this->isAuthor($category['user_id']);
+        }
+        unset($category);
+        return $categories;
     }
 }

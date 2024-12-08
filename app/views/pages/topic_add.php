@@ -9,7 +9,7 @@
                     <ol class="breadcrumb float-sm-right">
                         <li class="breadcrumb-item"><a href="<?= \app\core\Router::url('categories') ?>">Categories</a></li>
                         <li class="breadcrumb-item">
-                            <a href="<?= \app\core\Router::url('categories/' . (empty($old['category_id']) ? htmlspecialchars($category['id']) : htmlspecialchars($old['category_id'])) . '/topics') ?>">Topics</a>
+                            <a href="<?= \app\core\Router::url('categories/' . $categoryId . '/topics') ?>">Topics</a>
                         </li>
                         <li class="breadcrumb-item active">Add topic</li>
                     </ol>
@@ -27,9 +27,8 @@
                         </div>
                         <!-- /.card-header -->
                         <!-- form start -->
-                        <form action="<?= \app\core\Router::url('topics/store') ?>" method="post">
+                        <form action="<?= \app\core\Router::url('categories/' . $categoryId . '/topics/store') ?>" method="post">
                             <div class="card-body">
-                                <input type="hidden" name="category_id" value="<?= empty($old['category_id']) ? htmlspecialchars($category['id']) : htmlspecialchars($old['category_id']) ?>">
                                 <div class=" form-group">
                                     <label for="title">Title</label>
                                     <input type="text" name="title" class="form-control" id="title" value="<?= htmlspecialchars($old['title']) ?>" placeholder="Enter title of topic">
@@ -49,7 +48,7 @@
 
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-primary w-100">Submit</button>
-                                <a href="<?= \app\core\Router::url('categories/' . (empty($old['category_id']) ? htmlspecialchars($category['id']) : htmlspecialchars($old['category_id'])) . '/topics') ?>" class="btn btn-danger w-100 mt-2">Cancel</a>
+                                <a href="<?= \app\core\Router::url('categories/' . $categoryId . '/topics') ?>" class="btn btn-danger w-100 mt-2">Cancel</a>
                             </div>
                         </form>
                     </div>

@@ -3,6 +3,7 @@
 namespace app\controllers;
 
 use app\core\Router;
+use app\core\Session;
 use app\models\Category;
 use app\models\Topic;
 use app\models\User;
@@ -19,58 +20,56 @@ class TopicController extends Controller
     }
 
     /**
-     * Generates categories page
+     * Generates topics page
      * @param array $params
      * @return void
      */
     public function index(array $params): void
     {
-        $user = $this->getCurrentUser();
-        $categoryModel = new Category();
-        $category = $categoryModel->findCategoryOrFail($params['id']);
-        $topics = $this->model->getTopicsByCategory($category['id']);
-        $userModel = new User();
-        foreach ($topics as &$topic) {
-            $user = $userModel->getById($topic['user_id']);
-            $topic['user_login'] = $user['login'];
-        }
-        unset($topic);
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topics = $this->enrichTopicsWithUser($this->model->getTopicsByCategory($categoryId));
 
-        $this->view->render('topics', compact('category', 'topics', 'user'));
+        $this->view->render('topics', compact('categoryId', 'topics'));
     }
 
     /**
-     * Shows create topic page
+     * Renders topic's create form
      * @param array $params
      * @return void
      */
     public function create(array $params): void
     {
-        $categoryModel = new Category();
-        $category = $categoryModel->findCategoryOrFail($params['id']);
-        $this->view->render('topic_add', ['category' => $category]);
+        $errors = Session::get('errors') ?? [];
+        $old = Session::get('old') ?? [];
+        if (!empty($errors)) {
+            Session::remove(['errors', 'old']);
+        }
+
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $this->view->render('topic_add', compact('categoryId', 'errors', 'old'));
     }
 
     /**
      * Stores a new topic
+     * @param array $params
      * @return void
      */
-    public function store(): void
+    public function store(array $params): void
     {
-        $postData = $this->validation->getValidatedData(['title', 'description', 'category_id'], 'topic_add');
+        $postData = $this->validation->getValidatedData(['title', 'description']);
 
-        $user = $this->getCurrentUser();
-        $postData['user_id'] = $user['id'];
+        if (!$postData) {
+            Router::redirect('categories/' . $params['ids'][0] . '/topics/create');
+        }
 
-        $categoryModel = new Category();
-        $category = $categoryModel->findCategoryOrFail($postData['category_id']);
-        $postData['category_id'] = $category['id'];
+        $postData['user_id'] = $this->getCurrentUserId();
+        $postData['category_id'] = $this->checkCategory($params['ids'][0]);
 
         if (!$this->model->create($postData)) {
             Helpers::renderError('Topic not created');
         }
 
-        Router::redirect('categories/' . $category['id'] . '/topics');
+        Router::redirect('categories/' . $postData['category_id'] . '/topics');
     }
 
     /**
@@ -80,25 +79,35 @@ class TopicController extends Controller
      */
     public function edit(array $params): void
     {
-        $topic = $this->model->findTopicOrFail($params['id']);
-        $this->view->render('topic_edit', compact('topic'));
+        $errors = Session::get('errors') ?? [];
+        $old = Session::get('old') ?? $this->model->findTopicOrFail($params['ids'][1]);
+        if (!empty($errors)) {
+            Session::remove(['errors', 'old']);
+        }
+
+        $categoryId = $this->checkCategory($params['ids'][0]);
+
+        $this->view->render('topic_edit', compact('categoryId', 'old', 'errors'));
     }
 
     /**
      * Updates an existing topic
      * @return void
      */
-    public function update(): void
+    public function update(array $params): void
     {
-        $postData = $this->validation->getValidatedData(['id', 'title', 'description', 'category_id'], 'topic_edit');
-
+        $postData = $this->validation->getValidatedData(['id', 'title', 'description']);
+        if (!$postData) {
+            $topicId = Session::get('old')['id'];
+            Router::redirect('categories/' . $params['ids'][0] . '/topics/edit/' . $topicId);
+        }
         $this->model->findTopicOrFail($postData['id']);
 
         if (!$this->model->update($postData['id'], $postData)) {
             Helpers::renderError('Topic not updated');
         }
 
-        Router::redirect('categories/' . $postData['category_id'] . '/topics');
+        Router::redirect('categories/' . $params['ids'][0] . '/topics');
     }
 
     /**
@@ -108,13 +117,42 @@ class TopicController extends Controller
      */
     public function delete(array $params): never
     {
-        $topic = $this->model->findTopicOrFail($params['id']);
-        $category_id = $topic['category_id'];
+        $topic = $this->model->findTopicOrFail(end($params['ids']));
+        $categoryId = $topic['category_id'];
 
         if (!$this->model->delete($topic['id'])) {
             Helpers::renderError('Topic not deleted');
         }
 
-        Router::redirect('categories/' . $category_id . '/topics');
+        Router::redirect('categories/' . $categoryId . '/topics');
+    }
+
+    /**
+     * Checks whether category exist and returns it's id
+     * @param int $id
+     * @return int
+     */
+    private function checkCategory(int $id): int
+    {
+        $categoryModel = new Category();
+        $category = $categoryModel->findCategoryOrFail($id);
+        return $category['id'];
+    }
+
+    /**
+     * Adds needed fields to the topics for the correct view
+     * @param array $topics
+     * @return array
+     */
+    private function enrichTopicsWithUser(array $topics): array
+    {
+        $userModel = new User();
+        foreach ($topics as &$topic) {
+            $user = $userModel->getById($topic['user_id']);
+            $topic['user_login'] = $user['login'];
+            $topic['is_author'] = $this->isAuthor($topic['user_id']);
+        }
+        unset($topic);
+        return $topics;
     }
 }

@@ -26,17 +26,17 @@
                         <!-- form start -->
                         <form action="<?= \app\core\Router::url('categories/update') ?>" method="post">
                             <div class="card-body">
-                                <input type="hidden" name="id" value="<?= empty($old['id']) ? htmlspecialchars($category['id']) : htmlspecialchars($old['id']) ?>">
+                                <input type="hidden" name="id" value="<?= htmlspecialchars($old['id']) ?>">
                                 <div class="form-group">
                                     <label for="title">Title</label>
-                                    <input type="text" name="title" class="form-control" id="title" value="<?= empty($old['title']) ? htmlspecialchars($category['title']) : htmlspecialchars($old['title']) ?>" placeholder="Enter title of category">
+                                    <input type="text" name="title" class="form-control" id="title" value="<?= htmlspecialchars($old['title']) ?>" placeholder="Enter title of category">
                                     <?php if (!empty($errors)): ?>
                                         <div class="text-danger mt-2"><?= htmlspecialchars($errors['title']) ?></div>
                                     <?php endif; ?>
                                 </div>
                                 <div class="form-group">
                                     <label>Description</label>
-                                    <textarea class="form-control" name="description" rows="3" placeholder="Enter short description..."><?= empty($old['description']) ? htmlspecialchars($category['description']) : htmlspecialchars($old['description']) ?></textarea>
+                                    <textarea class="form-control" name="description" rows="3" placeholder="Enter short description..."><?= htmlspecialchars($old['description']) ?></textarea>
                                     <?php if (!empty($errors)): ?>
                                         <div class="text-danger mt-2"><?= htmlspecialchars($errors['description']) ?></div>
                                     <?php endif; ?>
