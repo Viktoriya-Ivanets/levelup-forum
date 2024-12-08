@@ -23,7 +23,7 @@ class Session
      * @param mixed $value The value to be stored in the session.
      * @return void
      */
-    public static function set(string $key, ?string $value): void
+    public static function set(string $key, mixed $value): void
     {
         $_SESSION[$key] = $value;
     }
@@ -34,7 +34,7 @@ class Session
      * @param string $key The key of the session variable to retrieve.
      * @return mixed|null The value of the session variable, or null if not set.
      */
-    public static function get(string $key): string|null
+    public static function get(string $key): mixed
     {
         return $_SESSION[$key] ?? null;
     }
@@ -42,12 +42,14 @@ class Session
     /**
      * Removes a session variable.
      *
-     * @param string $key The key of the session variable to remove.
+     * @param array $keys Array of keys - session variables to remove.
      * @return void
      */
-    public static function remove(string $key): void
+    public static function remove(array $keys): void
     {
-        unset($_SESSION[$key]);
+        foreach ($keys as $key) {
+            unset($_SESSION[$key]);
+        }
     }
 
     /**
