@@ -90,4 +90,16 @@ abstract class Controller
         }
         return $message;
     }
+
+    /**
+     * Count number of pages for pagination
+     * @param int $limit
+     * @param mixed $id
+     * @return int
+     */
+    public function countPages(int $limit, ?int $id = null): int
+    {
+        $recordCount = $this->model->getCount($id)["COUNT(id)"];
+        return ceil($recordCount / $limit);
+    }
 }

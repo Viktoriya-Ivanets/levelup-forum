@@ -76,6 +76,22 @@
                                 <div>
                                     <i class="fas fa-clock bg-gray"></i>
                                 </div>
+                                <nav aria-label="Page navigation">
+                                    <ul class="pagination justify-content-center">
+                                        <?php for ($i = 1; $i <= $pages; $i++): ?>
+                                            <?php if ($i === 1): ?>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="<?= app\core\Router::url('categories/' . $categoryId . '/topics/' . $topic['id'] . '/messages') ?>">1</a>
+                                                </li>
+                                            <?php else: ?>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="<?= app\core\Router::url('categories/' . $categoryId . '/topics/' . $topic['id'] . '/messages/page/' . $i) ?>"><?= $i ?></a>
+                                                </li>
+                                            <?php endif; ?>
+                                        <?php endfor; ?>
+                                    </ul>
+                                </nav>
+
                             </div>
                         </div>
                         <!-- /.col -->

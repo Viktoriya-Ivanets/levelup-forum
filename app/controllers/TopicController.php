@@ -4,11 +4,9 @@ namespace app\controllers;
 
 use app\core\Router;
 use app\core\Session;
-use app\models\Category;
 use app\models\Topic;
 use app\models\User;
 use app\utils\TopicValidation;
-use app\utils\Helpers;
 
 class TopicController extends Controller
 {
@@ -27,9 +25,10 @@ class TopicController extends Controller
     public function index(array $params): void
     {
         $categoryId = $this->findCategoryOrFail($params['ids'][0])['id'];
-        $topics = $this->enrichTopicsWithUser($this->model->getTopicsByCategory($categoryId));
+        $topics = $this->enrichTopicsWithUser($this->model->getTopicsByCategory($categoryId, $params['page'] - 1, PAGE_LIMIT));
+        $pages = $this->countPages(10, $categoryId);
 
-        $this->view->render('topics', compact('categoryId', 'topics'));
+        $this->view->render('topics', compact('categoryId', 'topics', 'pages'));
     }
 
     /**

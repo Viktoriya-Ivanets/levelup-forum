@@ -3,6 +3,7 @@
 /**
  * Here's defined paths constants
  */
+const PAGE_LIMIT = 10;
 const PUBLIC_IMAGES = DIRECTORY_SEPARATOR . 'images' . DIRECTORY_SEPARATOR;
 const VIEWS = '..' . DIRECTORY_SEPARATOR . 'app' . DIRECTORY_SEPARATOR . 'views' . DIRECTORY_SEPARATOR;
 const COMMON_VIEWS = VIEWS . 'common' . DIRECTORY_SEPARATOR;

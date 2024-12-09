@@ -30,9 +30,10 @@ class MessageController extends Controller
         $topic['user_login'] = (new User())->getById($topic['user_id'])['login'];
         $topic['date'] = Helpers::getDate($topic['created_at']);
         $topic['time'] = Helpers::getTime($topic['created_at']);
-        $messages = $this->enrichMessagesWithUser($this->model->getAll());
+        $messages = $this->enrichMessagesWithUser($this->model->getMessagesByTopic($topic['id'], $params['page'] - 1, PAGE_LIMIT));
+        $pages = $this->countPages(10, $topic['id']);
 
-        $this->view->render('topic', compact('categoryId', 'topic', 'messages'));
+        $this->view->render('topic', compact('categoryId', 'topic', 'messages', 'pages'));
     }
 
     /**

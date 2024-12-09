@@ -35,11 +35,18 @@ class Router
                     $this->params['ids'] = array_map('intval', $numberMatches[0]);
                 }
 
+                if (preg_match('#/page/(\d+)$#', $url, $pageMatch)) {
+                    $this->params['page'] = (int)$pageMatch[1];
+                } else {
+                    $this->params['page'] = 1;
+                }
+
                 return true;
             }
         }
         return false;
     }
+
 
     /**
      * Dispatches the request to the appropriate controller and action

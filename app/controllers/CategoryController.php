@@ -6,7 +6,6 @@ use app\core\Router;
 use app\core\Session;
 use app\models\Category;
 use app\utils\CategoryValidation;
-use app\utils\Helpers;
 
 class CategoryController extends Controller
 {
@@ -21,10 +20,12 @@ class CategoryController extends Controller
      * Generates categories page
      * @return void
      */
-    public function index(): void
+    public function index(array $params): void
     {
-        $categories = $this->enrichCategoriesWithUser($this->model->getAll());
-        $this->view->render('categories', compact('categories'));
+        $categories = $this->enrichCategoriesWithUser($this->model->getLimitedCount($params['page'] - 1, PAGE_LIMIT));
+        $pages = $this->countPages(10);
+
+        $this->view->render('categories', compact('categories', 'pages'));
     }
 
     /**
