@@ -30,11 +30,15 @@ class MessageController extends Controller
         $topic['user_login'] = (new User())->getById($topic['user_id'])['login'];
         $topic['date'] = Helpers::getDate($topic['created_at']);
         $topic['time'] = Helpers::getTime($topic['created_at']);
+
         $messages = $this->enrichMessagesWithUser($this->model->getMessagesByTopic($topic['id'], $params['page'] - 1, PAGE_LIMIT));
         $pages = $this->countPages(10, $topic['id']);
 
-        $this->view->render('topic', compact('categoryId', 'topic', 'messages', 'pages'));
+        $groupedMessages = $this->groupByDate($messages);
+
+        $this->view->render('topic', compact('categoryId', 'topic', 'groupedMessages', 'pages'));
     }
+
 
     /**
      * Renders message's create form
@@ -155,5 +159,18 @@ class MessageController extends Controller
         }
         unset($message);
         return $messages;
+    }
+
+    private function groupByDate(array $messages): array
+    {
+        $groupedMessages = [];
+        foreach ($messages as $message) {
+            $date = Helpers::getDate($message['created_at']);
+            if (!isset($groupedMessages[$date])) {
+                $groupedMessages[$date] = [];
+            }
+            $groupedMessages[$date][] = $message;
+        }
+        return $groupedMessages;
     }
 }

@@ -2,6 +2,8 @@
 
 namespace app\utils;
 
+use DateTime;
+
 class Helpers
 {
     /**
@@ -23,12 +25,13 @@ class Helpers
 
     public static function getDate(string $date): string
     {
-        return strtok($date, " ");
+        $result = new DateTime($date);
+        return $result->format('d M, Y');
     }
 
     public static function getTime(string $date): string
     {
-        return
-            substr($date, strpos($date, " ") + 1);
+        $result = new DateTime($date);
+        return $result->format('H:i');
     }
 }
