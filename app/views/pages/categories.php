@@ -19,9 +19,9 @@
                 </div>
             </div>
             <div class="row">
-                <?php foreach ($categories as $category): ?>
-                    <div class="col-lg-6 col-md-6">
-                        <div class="col-12 p-0">
+                <?php if (!empty($categories)): ?>
+                    <?php foreach ($categories as $category): ?>
+                        <div class="col-lg-6 col-md-6 mb-4">
                             <div class="small-box bg-primary">
                                 <div class="inner p-3">
                                     <h3><?= htmlspecialchars($category['title']); ?></h3>
@@ -39,29 +39,23 @@
                                 </div>
                             </div>
                         </div>
+                    <?php endforeach; ?>
+                    <div class="row w-100 d-flex justify-content-center">
+                        <nav aria-label="Page navigation">
+                            <ul class="pagination justify-content-center">
+                                <?php for ($i = 1; $i <= $pages; $i++): ?>
+                                    <li class="page-item <?= $i === $currentPage ? 'active' : '' ?>">
+                                        <a class="page-link" href="<?= app\core\Router::url('categories/page/' . $i) ?>"><?= $i ?></a>
+                                    </li>
+                                <?php endfor; ?>
+                            </ul>
+                        </nav>
                     </div>
-                    <?php if ($category['id'] % 2 === 0): ?>
-            </div>
-            <div class="row">
-            <?php endif; ?>
-        <?php endforeach; ?>
-        <div class="row w-100 d-flex justify-content-center">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <?php for ($i = 1; $i <= $pages; $i++): ?>
-                        <?php if ($i === 1): ?>
-                            <li class="page-item">
-                                <a class="page-link" href="<?= app\core\Router::url('categories') ?>">1</a>
-                            </li>
-                        <?php else: ?>
-                            <li class="page-item">
-                                <a class="page-link" href="<?= app\core\Router::url('categories/page/' . $i) ?>"><?= $i ?></a>
-                            </li>
-                        <?php endif; ?>
-                    <?php endfor; ?>
-                </ul>
-            </nav>
-        </div>
+                <?php else: ?>
+                    <div class="text-center w-100 mt-5">
+                        <h2>No categories yet</h2>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
