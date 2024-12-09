@@ -128,18 +128,6 @@ class TopicController extends Controller
     }
 
     /**
-     * Checks whether category exist and returns it's id
-     * @param int $id
-     * @return int
-     */
-    private function checkCategory(int $id): int
-    {
-        $categoryModel = new Category();
-        $category = $categoryModel->findCategoryOrFail($id);
-        return $category['id'];
-    }
-
-    /**
      * Adds needed fields to the topics for the correct view
      * @param array $topics
      * @return array

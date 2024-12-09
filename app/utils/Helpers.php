@@ -31,4 +31,15 @@ class Helpers
         echo $message;
         exit();
     }
+
+    public static function getDate(string $date): string
+    {
+        return strtok($date, " ");
+    }
+
+    public static function getTime(string $date): string
+    {
+        return
+            substr($date, strpos($date, " ") + 1);
+    }
 }

@@ -4,6 +4,8 @@ namespace app\controllers;
 
 use app\core\Session;
 use app\core\View;
+use app\models\Category;
+use app\models\Topic;
 use app\models\User;
 
 abstract class Controller
@@ -45,5 +47,29 @@ abstract class Controller
             return true;
         }
         return false;
+    }
+
+    /**
+     * Checks whether category exist and returns it's id
+     * @param int $id
+     * @return int
+     */
+    protected function checkCategory(int $id): int
+    {
+        $categoryModel = new Category();
+        $category = $categoryModel->findCategoryOrFail($id);
+        return $category['id'];
+    }
+
+    /**
+     * Checks whether topic exist
+     * @param int $id
+     * @return int
+     */
+    protected function checkTopic(int $id): array
+    {
+        $topicModel = new Topic();
+        $topic = $topicModel->findTopicOrFail($id);
+        return $topic;
     }
 }

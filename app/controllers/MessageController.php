@@ -1,0 +1,149 @@
+<?php
+
+namespace app\controllers;
+
+use app\core\Router;
+use app\core\Session;
+use app\models\Category;
+use app\models\Message;
+use app\models\Topic;
+use app\models\User;
+use app\utils\Helpers;
+use app\utils\MessageValidation;
+
+class MessageController extends Controller
+{
+    protected MessageValidation $validation;
+    public function __construct()
+    {
+        parent::__construct('', new Message());
+        $this->validation = new MessageValidation();
+    }
+
+    /**
+     * Generates messages page
+     * @param array $params
+     * @return void
+     */
+    public function index(array $params): void
+    {
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topic = $this->checkTopic($params['ids'][1]);
+        $topic['user_login'] = (new User())->getById($topic['user_id'])['login'];
+        $topic['date'] = Helpers::getDate($topic['created_at']);
+        $topic['time'] = Helpers::getTime($topic['created_at']);
+        $messages = $this->enrichMessagesWithUser($this->model->getAll());
+
+        $this->view->render('topic', compact('categoryId', 'topic', 'messages'));
+    }
+
+    /**
+     * Renders message's create form
+     * @param array $params
+     * @return void
+     */
+    public function create(array $params): void
+    {
+        $errors = Session::get('errors') ?? [];
+        $old = Session::get('old') ?? [];
+        if (!empty($errors)) {
+            Session::remove(['errors', 'old']);
+        }
+
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topic = $this->checkTopic($params['ids'][1]);
+        $this->view->render('message_add', compact('categoryId', 'topic', 'errors', 'old'));
+    }
+
+    /**
+     * Stores a new topic
+     * @param array $params
+     * @return void
+     */
+    public function store(array $params): void
+    {
+        $postData = $this->validation->getValidatedData(['text']);
+
+        if (!$postData) {
+            Router::redirect('categories/' . $params['ids'][0] . '/topics/' . $params['ids'][1] . '/messages/create');
+        }
+
+        $postData['user_id'] = $this->getCurrentUserId();
+        $postData['topic_id'] = $this->checkTopic($params['ids'][1])['id'];
+
+        if (!$this->model->create($postData)) {
+            Helpers::renderError('Message not created');
+        }
+
+        Router::redirect('categories/' . $params['ids'][0] . '/topics/' . $params['ids'][1] . '/messages');
+    }
+
+    /**
+     * Renders topic's edit form 
+     * @param array $params
+     * @return void
+     */
+    public function edit(array $params): void
+    {
+        $errors = Session::get('errors') ?? [];
+        $old = Session::get('old') ?? $this->model->findMessageOrFail(end($params['ids']));
+        if (!empty($errors)) {
+            Session::remove(['errors', 'old']);
+        }
+
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topic = $this->checkTopic($params['ids'][1]);
+
+        $this->view->render('message_edit', compact('categoryId', 'topic', 'old', 'errors'));
+    }
+
+    /**
+     * Updates an existing topic
+     * @return void
+     */
+    public function update(array $params): void
+    {
+        $postData = $this->validation->getValidatedData(['id', 'text']);
+        if (!$postData) {
+            $messageId = Session::get('old')['id'];
+            Router::redirect('categories/' . $params['ids'][0] . '/topics/' . $params['ids'][1] . '/messages/edit/' . $messageId);
+        }
+        $this->model->findMessageOrFail($postData['id']);
+
+        if (!$this->model->update($postData['id'], $postData)) {
+            Helpers::renderError('Message not updated');
+        }
+
+        Router::redirect('categories/' . $params['ids'][0] . '/topics/' . $params['ids'][1] . '/messages');
+    }
+
+    /**
+     * Delets existing message
+     * @param array $params
+     * @return never
+     */
+    public function delete(array $params): never
+    {
+        $message = $this->model->findMessageOrFail(end($params['ids']));
+        $categoryId = $params['ids'][0];
+
+        if (!$this->model->delete($message['id'])) {
+            Helpers::renderError('Message not deleted');
+        }
+
+        Router::redirect('categories/' . $categoryId . '/topics/' . $params['ids'][1] . '/messages');
+    }
+
+    private function enrichMessagesWithUser(array $messages): array
+    {
+        $userModel = new User();
+        foreach ($messages as &$message) {
+            $user = $userModel->getById($message['user_id']);
+            $message['user_login'] = $user['login'];
+            $message['is_author'] = $this->isAuthor($message['user_id']);
+            $message['time'] = Helpers::getTime($message['created_at']);
+        }
+        unset($message);
+        return $messages;
+    }
+}
