@@ -49,36 +49,77 @@ class Router
     public function dispatch($url): void
     {
         Session::start();
-        $publicRoutes = ['login', 'register'];
-
         $url = trim($url, '/');
-        if (!Session::get('token') && !in_array($url, $publicRoutes)) {
+
+        if (!$this->isAuthorized($url)) {
             self::redirect('login');
             return;
         }
 
         if ($this->match($url)) {
-            $controllerClass = '\\app\\controllers\\' . ucfirst($this->params['controller']) . 'Controller';
-
-            if (class_exists($controllerClass)) {
-                $controllerObject = new $controllerClass();
-
-                $actionMethod = $this->params['action'];
-                if (method_exists($controllerObject, $actionMethod)) {
-                    $controllerObject->$actionMethod($this->params);
-                } else {
-                    (new View())->renderError(['message' => 'Page not found', 'code' => 404]);
-                    error_log("Error: Method '$actionMethod' not found in controller '$controllerClass'.");
-                }
-            } else {
-                (new View())->renderError(['message' => 'Page not found', 'code' => 404]);
-                error_log("Error: Controller '$controllerClass' not found.");
-            }
+            $this->handleMatchedRoute();
         } else {
-            (new View())->renderError(['message' => 'Page not found', 'code' => 404]);
-            error_log("Error: Page not found!");
+            $this->handleNotFound();
         }
     }
+
+    /**
+     * Checks if the user is authorized to access the given URL.
+     *
+     * @param string $url The URL being accessed.
+     * @return bool True if authorized, false otherwise.
+     */
+    private function isAuthorized(string $url): bool
+    {
+        $publicRoutes = ['login', 'register'];
+        return Session::get('token') || in_array($url, $publicRoutes);
+    }
+
+    /**
+     * Handles the logic when a route is successfully matched.
+     */
+    private function handleMatchedRoute(): void
+    {
+        $controllerClass = '\\app\\controllers\\' . ucfirst($this->params['controller']) . 'Controller';
+
+        if (!class_exists($controllerClass)) {
+            error_log("Error: Controller '$controllerClass' not found.");
+            $this->renderError(404, 'Page not found');
+            return;
+        }
+
+        $controllerObject = new $controllerClass();
+        $actionMethod = $this->params['action'];
+
+        if (!method_exists($controllerObject, $actionMethod)) {
+            error_log("Error: Method '$actionMethod' not found in controller '$controllerClass'.");
+            $this->renderError(404, 'Page not found');
+            return;
+        }
+
+        $controllerObject->$actionMethod($this->params);
+    }
+
+    /**
+     * Handles the logic when a route is not matched.
+     */
+    private function handleNotFound(): void
+    {
+        error_log("Error: Page not found!");
+        $this->renderError(404, 'Page not found');
+    }
+
+    /**
+     * Renders an error page.
+     *
+     * @param int $code HTTP status code.
+     * @param string $message Error message to display.
+     */
+    private function renderError(int $code, string $message): void
+    {
+        (new View())->renderError(['message' => $message, 'code' => $code]);
+    }
+
 
     /**
      * Generates a URL for the specified route.
