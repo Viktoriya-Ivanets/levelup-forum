@@ -57,7 +57,7 @@ class CategoryController extends Controller
         $postData['user_id'] = $this->getCurrentUserId();
 
         if (!$this->model->create($postData)) {
-            Helpers::renderError('Category not created');
+            $this->view->renderError(['message' => 'Category not created, please try again later', 'code' => 500]);
         }
 
         Router::redirect('categories');
@@ -71,7 +71,7 @@ class CategoryController extends Controller
     public function edit(array $params): void
     {
         $errors = Session::get('errors') ?? [];
-        $old = Session::get('old') ?? $this->model->findCategoryOrFail(end($params['ids']));
+        $old = Session::get('old') ?? $this->findCategoryOrFail(end($params['ids']));
         if (!empty($errors)) {
             Session::remove(['errors', 'old']);
         }
@@ -90,10 +90,10 @@ class CategoryController extends Controller
             $categoryId = Session::get('old')['id'];
             Router::redirect('categories/edit/' . $categoryId);
         }
-        $this->model->findCategoryOrFail($postData['id']);
+        $this->findCategoryOrFail($postData['id']);
 
         if (!$this->model->update($postData['id'], $postData)) {
-            Helpers::renderError('Category not updated');
+            $this->view->renderError(['message' => 'Category not updated, please try again later', 'code' => 500]);
         }
 
         Router::redirect('categories');
@@ -106,10 +106,10 @@ class CategoryController extends Controller
      */
     public function delete(array $params): never
     {
-        $category = $this->model->findCategoryOrFail(end($params['ids']));
+        $category = $this->findCategoryOrFail(end($params['ids']));
 
         if (!$this->model->delete($category['id'])) {
-            Helpers::renderError('Category not deleted');
+            $this->view->renderError(['message' => 'Category not deleted, please try again later', 'code' => 500]);
         }
 
         Router::redirect('categories');

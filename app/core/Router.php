@@ -67,16 +67,16 @@ class Router
                 if (method_exists($controllerObject, $actionMethod)) {
                     $controllerObject->$actionMethod($this->params);
                 } else {
-                    http_response_code(404);
-                    echo "Error: Method '$actionMethod' not found in controller '$controllerClass'.";
+                    (new View())->renderError(['message' => 'Page not found', 'code' => 404]);
+                    error_log("Error: Method '$actionMethod' not found in controller '$controllerClass'.");
                 }
             } else {
-                http_response_code(404);
-                echo "Error: Controller '$controllerClass' not found.";
+                (new View())->renderError(['message' => 'Page not found', 'code' => 404]);
+                error_log("Error: Controller '$controllerClass' not found.");
             }
         } else {
-            http_response_code(404);
-            echo "Error: Page not found!";
+            (new View())->renderError(['message' => 'Page not found', 'code' => 404]);
+            error_log("Error: Page not found!");
         }
     }
 

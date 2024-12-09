@@ -5,6 +5,7 @@ namespace app\controllers;
 use app\core\Session;
 use app\core\View;
 use app\models\Category;
+use app\models\Message;
 use app\models\Topic;
 use app\models\User;
 
@@ -48,28 +49,45 @@ abstract class Controller
         }
         return false;
     }
-
     /**
-     * Checks whether category exist and returns it's id
+     * Finds a category by ID or throws an error
      * @param int $id
-     * @return int
+     * @return array
      */
-    protected function checkCategory(int $id): int
+    public function findCategoryOrFail(int $id): array
     {
-        $categoryModel = new Category();
-        $category = $categoryModel->findCategoryOrFail($id);
-        return $category['id'];
+        $category = (new Category())->getById($id);
+        if (!$category) {
+            $this->view->renderError(['message' => 'Category not found, please return back', 'code' => 404]);
+        }
+        return $category;
     }
 
     /**
-     * Checks whether topic exist
+     * Finds a topic by ID or throws an error
      * @param int $id
-     * @return int
+     * @return array
      */
-    protected function checkTopic(int $id): array
+    public function findTopicOrFail(int $id): array
     {
-        $topicModel = new Topic();
-        $topic = $topicModel->findTopicOrFail($id);
+        $topic = (new Topic())->getById($id);
+        if (!$topic) {
+            $this->view->renderError(['message' => 'Topic not found, please return back', 'code' => 404]);
+        }
         return $topic;
+    }
+
+    /**
+     * Finds a message by ID or throws an error
+     * @param int $id
+     * @return array
+     */
+    public function findMessageOrFail(int $id): array
+    {
+        $message = (new Message())->getById($id);
+        if (!$message) {
+            $this->view->renderError(['message' => 'Message not found, please return back', 'code' => 404]);
+        }
+        return $message;
     }
 }

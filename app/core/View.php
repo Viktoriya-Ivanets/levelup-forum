@@ -30,4 +30,17 @@ class View
         include_once TEMPLATES . $this->template . '.php';
         exit();
     }
+
+    /* Renders an error message and stops execution
+     * @param string $message
+     * @return never
+     */
+    public function renderError(array $data): never
+    {
+        extract($data);
+        $page = 'errors';
+        http_response_code($code);
+        include_once TEMPLATES . $this->template . '.php';
+        exit();
+    }
 }
