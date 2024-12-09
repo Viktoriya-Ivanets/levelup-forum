@@ -4,9 +4,7 @@ namespace app\controllers;
 
 use app\core\Router;
 use app\core\Session;
-use app\models\Category;
 use app\models\Message;
-use app\models\Topic;
 use app\models\User;
 use app\utils\Helpers;
 use app\utils\MessageValidation;
@@ -44,77 +42,82 @@ class MessageController extends Controller
      */
     public function create(array $params): void
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topicId = $this->checkTopic($params['ids'][1])['id'];
         $errors = Session::get('errors') ?? [];
         $old = Session::get('old') ?? [];
         if (!empty($errors)) {
             Session::remove(['errors', 'old']);
         }
 
-        $categoryId = $this->checkCategory($params['ids'][0]);
-        $topic = $this->checkTopic($params['ids'][1]);
-        $this->view->render('message_add', compact('categoryId', 'topic', 'errors', 'old'));
+        $this->view->render('message_add', compact('categoryId', 'topicId', 'errors', 'old'));
     }
 
     /**
-     * Stores a new topic
+     * Stores a new message
      * @param array $params
      * @return void
      */
     public function store(array $params): void
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topicId = $this->checkTopic($params['ids'][1])['id'];
         $postData = $this->validation->getValidatedData(['text']);
 
         if (!$postData) {
-            Router::redirect('categories/' . $params['ids'][0] . '/topics/' . $params['ids'][1] . '/messages/create');
+            Router::redirect('categories/' . $categoryId . '/topics/' . $topicId . '/messages/create');
         }
 
         $postData['user_id'] = $this->getCurrentUserId();
-        $postData['topic_id'] = $this->checkTopic($params['ids'][1])['id'];
+        $postData['topic_id'] = $topicId;
 
         if (!$this->model->create($postData)) {
             Helpers::renderError('Message not created');
         }
 
-        Router::redirect('categories/' . $params['ids'][0] . '/topics/' . $params['ids'][1] . '/messages');
+        Router::redirect('categories/' . $categoryId . '/topics/' . $topicId . '/messages');
     }
 
     /**
-     * Renders topic's edit form 
+     * Renders message's edit form 
      * @param array $params
      * @return void
      */
     public function edit(array $params): void
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topicId = $this->checkTopic($params['ids'][1])['id'];
         $errors = Session::get('errors') ?? [];
         $old = Session::get('old') ?? $this->model->findMessageOrFail(end($params['ids']));
         if (!empty($errors)) {
             Session::remove(['errors', 'old']);
         }
 
-        $categoryId = $this->checkCategory($params['ids'][0]);
-        $topic = $this->checkTopic($params['ids'][1]);
-
-        $this->view->render('message_edit', compact('categoryId', 'topic', 'old', 'errors'));
+        $this->view->render('message_edit', compact('categoryId', 'topicId', 'old', 'errors'));
     }
 
     /**
-     * Updates an existing topic
+     * Updates an existing message
      * @return void
      */
     public function update(array $params): void
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topicId = $this->checkTopic($params['ids'][1])['id'];
         $postData = $this->validation->getValidatedData(['id', 'text']);
+
         if (!$postData) {
             $messageId = Session::get('old')['id'];
-            Router::redirect('categories/' . $params['ids'][0] . '/topics/' . $params['ids'][1] . '/messages/edit/' . $messageId);
+            Router::redirect('categories/' . $categoryId . '/topics/' . $topicId . '/messages/edit/' . $messageId);
         }
+
         $this->model->findMessageOrFail($postData['id']);
 
         if (!$this->model->update($postData['id'], $postData)) {
             Helpers::renderError('Message not updated');
         }
 
-        Router::redirect('categories/' . $params['ids'][0] . '/topics/' . $params['ids'][1] . '/messages');
+        Router::redirect('categories/' . $categoryId . '/topics/' . $topicId . '/messages');
     }
 
     /**
@@ -124,16 +127,22 @@ class MessageController extends Controller
      */
     public function delete(array $params): never
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
+        $topicId = $this->checkTopic($params['ids'][1])['id'];
         $message = $this->model->findMessageOrFail(end($params['ids']));
-        $categoryId = $params['ids'][0];
 
         if (!$this->model->delete($message['id'])) {
             Helpers::renderError('Message not deleted');
         }
 
-        Router::redirect('categories/' . $categoryId . '/topics/' . $params['ids'][1] . '/messages');
+        Router::redirect('categories/' . $categoryId . '/topics/' . $topicId . '/messages');
     }
 
+    /**
+     * Adds needed fields to the messages for the correct view
+     * @param array $messages
+     * @return array
+     */
     private function enrichMessagesWithUser(array $messages): array
     {
         $userModel = new User();

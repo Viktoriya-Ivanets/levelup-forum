@@ -39,13 +39,13 @@ class TopicController extends Controller
      */
     public function create(array $params): void
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
         $errors = Session::get('errors') ?? [];
         $old = Session::get('old') ?? [];
         if (!empty($errors)) {
             Session::remove(['errors', 'old']);
         }
 
-        $categoryId = $this->checkCategory($params['ids'][0]);
         $this->view->render('topic_add', compact('categoryId', 'errors', 'old'));
     }
 
@@ -56,20 +56,21 @@ class TopicController extends Controller
      */
     public function store(array $params): void
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
         $postData = $this->validation->getValidatedData(['title', 'description']);
 
         if (!$postData) {
-            Router::redirect('categories/' . $params['ids'][0] . '/topics/create');
+            Router::redirect('categories/' . $categoryId . '/topics/create');
         }
 
         $postData['user_id'] = $this->getCurrentUserId();
-        $postData['category_id'] = $this->checkCategory($params['ids'][0]);
+        $postData['category_id'] = $categoryId;
 
         if (!$this->model->create($postData)) {
             Helpers::renderError('Topic not created');
         }
 
-        Router::redirect('categories/' . $postData['category_id'] . '/topics');
+        Router::redirect('categories/' . $categoryId . '/topics');
     }
 
     /**
@@ -79,13 +80,12 @@ class TopicController extends Controller
      */
     public function edit(array $params): void
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
         $errors = Session::get('errors') ?? [];
-        $old = Session::get('old') ?? $this->model->findTopicOrFail($params['ids'][1]);
+        $old = Session::get('old') ?? $this->model->findTopicOrFail(end($params['ids']));
         if (!empty($errors)) {
             Session::remove(['errors', 'old']);
         }
-
-        $categoryId = $this->checkCategory($params['ids'][0]);
 
         $this->view->render('topic_edit', compact('categoryId', 'old', 'errors'));
     }
@@ -96,10 +96,11 @@ class TopicController extends Controller
      */
     public function update(array $params): void
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
         $postData = $this->validation->getValidatedData(['id', 'title', 'description']);
         if (!$postData) {
             $topicId = Session::get('old')['id'];
-            Router::redirect('categories/' . $params['ids'][0] . '/topics/edit/' . $topicId);
+            Router::redirect('categories/' . $categoryId . '/topics/edit/' . $topicId);
         }
         $this->model->findTopicOrFail($postData['id']);
 
@@ -107,7 +108,7 @@ class TopicController extends Controller
             Helpers::renderError('Topic not updated');
         }
 
-        Router::redirect('categories/' . $params['ids'][0] . '/topics');
+        Router::redirect('categories/' . $categoryId . '/topics');
     }
 
     /**
@@ -117,8 +118,8 @@ class TopicController extends Controller
      */
     public function delete(array $params): never
     {
+        $categoryId = $this->checkCategory($params['ids'][0]);
         $topic = $this->model->findTopicOrFail(end($params['ids']));
-        $categoryId = $topic['category_id'];
 
         if (!$this->model->delete($topic['id'])) {
             Helpers::renderError('Topic not deleted');

@@ -12,7 +12,7 @@
                             <a href="<?= \app\core\Router::url('categories/' . $categoryId . '/topics') ?>">Topics</a>
                         </li>
                         <li class="breadcrumb-item">
-                            <a href="<?= \app\core\Router::url('categories/' . $categoryId . '/topics/' . $topic['id'] . '/messages') ?>">Messages</a>
+                            <a href="<?= \app\core\Router::url('categories/' . $categoryId . '/topics/' . $topicId . '/messages') ?>">Messages</a>
                         </li>
                         <li class="breadcrumb-item active">Edit message</li>
                     </ol>
@@ -30,7 +30,7 @@
                         </div>
                         <!-- /.card-header -->
                         <!-- form start -->
-                        <form action="<?= \app\core\Router::url('categories/' . $categoryId . '/topics/' . $topic['id'] . '/messages/update') ?>" method="post">
+                        <form action="<?= \app\core\Router::url('categories/' . $categoryId . '/topics/' . $topicId . '/messages/update') ?>" method="post">
                             <div class="card-body">
                                 <input type="hidden" name="id" value="<?= $old['id'] ?>">
                                 <div class="form-group">
@@ -45,7 +45,7 @@
 
                             <div class="card-footer">
                                 <button type="submit" class="btn btn-primary w-100">Submit</button>
-                                <a href="<?= \app\core\Router::url('categories/' . $categoryId . '/topics/' . $topic['id'] . '/messages') ?>" class="btn btn-danger w-100 mt-2">Cancel</a>
+                                <a href="<?= \app\core\Router::url('categories/' . $categoryId . '/topics/' . $topicId . '/messages') ?>" class="btn btn-danger w-100 mt-2">Cancel</a>
                             </div>
                         </form>
                     </div>
