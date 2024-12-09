@@ -23,12 +23,22 @@ class Helpers
         return $postData;
     }
 
+    /**
+     * Convert date from y-m-d h:i:s to d M, Y
+     * @param string $date
+     * @return string
+     */
     public static function getDate(string $date): string
     {
         $result = new DateTime($date);
         return $result->format('d M, Y');
     }
 
+    /**
+     * Convert date from y-m-d h:i:s to H:i
+     * @param string $date
+     * @return string
+     */
     public static function getTime(string $date): string
     {
         $result = new DateTime($date);

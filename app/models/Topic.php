@@ -2,7 +2,6 @@
 
 namespace app\models;
 
-use app\core\View;
 use app\models\Model;
 
 class Topic extends Model

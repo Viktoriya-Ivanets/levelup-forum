@@ -60,7 +60,6 @@ class Router
 
         if (!$this->isAuthorized($url)) {
             self::redirect('login');
-            return;
         }
 
         if ($this->match($url)) {
@@ -92,7 +91,6 @@ class Router
         if (!class_exists($controllerClass)) {
             error_log("Error: Controller '$controllerClass' not found.");
             $this->renderError(404, 'Page not found');
-            return;
         }
 
         $controllerObject = new $controllerClass();
@@ -101,7 +99,6 @@ class Router
         if (!method_exists($controllerObject, $actionMethod)) {
             error_log("Error: Method '$actionMethod' not found in controller '$controllerClass'.");
             $this->renderError(404, 'Page not found');
-            return;
         }
 
         $controllerObject->$actionMethod($this->params);
